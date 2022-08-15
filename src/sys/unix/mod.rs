@@ -120,7 +120,7 @@ cfg_os_poll! {
 cfg_not_os_poll! {
     cfg_net! {
         mod uds;
-        pub use self::uds::SocketAddr;
+        pub(crate) use self::uds::SocketAddr;
     }
 
     cfg_any_os_ext! {

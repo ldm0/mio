@@ -60,7 +60,7 @@ cfg_os_poll! {
 
 #[cfg(windows)]
 cfg_os_poll! {
-    mod windows;
+    pub(crate) mod windows;
     pub use self::windows::*;
 }
 
@@ -83,6 +83,16 @@ cfg_not_os_poll! {
 
     #[cfg(unix)]
     cfg_net! {
-        pub use self::unix::SocketAddr;
+        pub(crate) use self::unix::SocketAddr;
+    }
+
+    #[cfg(windows)]
+    cfg_any_os_ext! {
+        pub(crate) mod windows;
+    }
+
+    #[cfg(windows)]
+    cfg_net! {
+        pub(crate) use self::windows::SocketAddr;
     }
 }

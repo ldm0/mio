@@ -1,9 +1,12 @@
-#![cfg(all(unix, feature = "os-poll", feature = "net"))]
+#![cfg(all(feature = "os-poll", feature = "net"))]
 
 use mio::net::UnixStream;
+#[cfg(windows)]
+use mio::windows::stdnet as net;
 use mio::{Interest, Token};
 use std::io::{self, IoSlice, IoSliceMut, Read, Write};
 use std::net::Shutdown;
+#[cfg(unix)]
 use std::os::unix::net;
 use std::path::Path;
 use std::sync::mpsc::channel;
@@ -24,6 +27,7 @@ const DATA1_LEN: usize = 16;
 const DATA2_LEN: usize = 14;
 const DEFAULT_BUF_SIZE: usize = 64;
 const TOKEN_1: Token = Token(0);
+#[cfg(unix)]
 const TOKEN_2: Token = Token(1);
 
 #[test]
@@ -133,6 +137,7 @@ fn unix_stream_from_std() {
     )
 }
 
+#[cfg(unix)]
 #[test]
 fn unix_stream_pair() {
     let (mut poll, mut events) = init_with_poll();
@@ -355,8 +360,8 @@ fn unix_stream_shutdown_both() {
     let err = stream.write(DATA2).unwrap_err();
     #[cfg(unix)]
     assert_eq!(err.kind(), io::ErrorKind::BrokenPipe);
-    #[cfg(window)]
-    assert_eq!(err.kind(), io::ErrorKind::ConnectionAbroted);
+    #[cfg(windows)]
+    assert_eq!(err.kind(), io::ErrorKind::ConnectionAborted);
 
     // Close the connection to allow the remote to shutdown
     drop(stream);
@@ -497,6 +502,8 @@ where
 
     assert!(stream.take_error().unwrap().is_none());
 
+    // To comply with draining behavior on windows we have to check assert_would_block()
+    // https://github.com/tokio-rs/mio/issues/1611
     assert_would_block(stream.read(&mut buf));
 
     let bufs = [IoSlice::new(DATA1), IoSlice::new(DATA2)];
