@@ -67,7 +67,7 @@ cfg_os_poll! {
 }
 
 /// An address associated with a Unix socket.
-pub(crate) struct SocketAddr {
+pub struct SocketAddr {
     addr: SOCKADDR_UN,
     len: c_int,
 }
@@ -120,14 +120,6 @@ impl SocketAddr {
                 addr: sockaddr,
                 len,
             })
-        }
-
-        pub(crate) fn raw_sockaddr(&self) -> &SOCKADDR_UN {
-            &self.addr
-        }
-
-        pub(crate) fn raw_socklen(&self) -> c_int {
-            self.len
         }
     }
 
