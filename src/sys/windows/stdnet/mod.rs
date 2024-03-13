@@ -13,7 +13,7 @@ cfg_os_poll! {
 
     use std::sync::Once;
 
-    /// Initialise the network stack for Windows.
+    /// Initialize the network stack for Windows.
     pub(crate) fn init() {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
